@@ -12,4 +12,9 @@ public class InMemoryRentalRepository : IRentalRepository
     {
         return _rentals.Count(r => r.idUser == userId && r.ReturnDate == default);
     }
+
+    public Rental? GetActiveRental(string userId, string equipmentId)
+    {
+        return _rentals.FirstOrDefault(r => r.idUser == userId && r.idEq == equipmentId && r.ReturnDate == default);
+    }
 }

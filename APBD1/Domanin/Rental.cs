@@ -8,4 +8,5 @@ public class Rental
     public DateTime RentDate { get; set; }
     public DateTime ReturnDate { get; set; }
     public bool OnTime { get; set; }
+    public DateTime DueDate { get; set; } 
 }

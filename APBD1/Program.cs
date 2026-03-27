@@ -93,7 +93,46 @@ class Program
         Console.WriteLine($"Stan eq2: {eq2.name} => {eq2.Status}");
         Console.WriteLine($"Stan eq3: {eq3.name} => {eq3.Status} (nie wypożyczony — limit)");
         Console.WriteLine("========================================");
+        Console.WriteLine("\n========================================");
+        Console.WriteLine("ZADANIE 15: Zwrot sprzetu");
+        Console.WriteLine("========================================");
+
+        var student15 = new Student { id = "STU15", name = "Marek", lastname = "Nowak" };
+        var laptop15  = new Laptop  { name = "Dell XPS",   gpu = "Intel Iris", RamSize = 16 };
+        var camera15  = new Camera  { name = "Sony Alpha", Brand = "Sony", Megapixels = 33 };
+
+        userRepository.Add(student15);
+        equipmentRepository.Add(laptop15);
+        equipmentRepository.Add(camera15);
+
+        
+        Console.WriteLine("\n[TEST A] Wypozyczamy i zwracamy Dell XPS w terminie:");
+        rentalService.RentEquipment("STU15", laptop15.id);
+        rentalService.ReturnEquipment("STU15", laptop15.id);
+        Console.WriteLine($"  Status sprzetu po zwrocie: {laptop15.Status}");
+
+        
+        Console.WriteLine("\n[TEST B] Dell XPS jest znowu dostepny — bierze go student S100:");
+        rentalService.RentEquipment("S100", laptop15.id);
+        Console.WriteLine($"  Status sprzetu: {laptop15.Status}");
+
+        
+        Console.WriteLine("\n[TEST C] Proba zwrotu sprzetu ktory nie byl wypozyczony przez uzytkownika:");
+        rentalService.ReturnEquipment("STU15", camera15.id);
+
+        
+        Console.WriteLine("\n[TEST D] Symulacja zwrotu PO terminie (DueDate cofniety o 3 dni):");
+        rentalService.RentEquipment("STU15", camera15.id);
+        var lateRental = rentalRepo.GetActiveRental("STU15", camera15.id);
+        if (lateRental != null) lateRental.DueDate = DateTime.Now.AddDays(-3);
+        rentalService.ReturnEquipment("STU15", camera15.id);
+
+        Console.WriteLine("\n========================================");
+        Console.WriteLine($"Stan laptop15: {laptop15.name} -> {laptop15.Status}");
+        Console.WriteLine($"Stan camera15: {camera15.name} -> {camera15.Status}");
+        Console.WriteLine("========================================");
     }
+    
 }
         
         
