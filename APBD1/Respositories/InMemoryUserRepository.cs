@@ -13,4 +13,9 @@ public class InMemoryUserRepository : IUserRepository
     {
         return  _users;
     }
+    
+    public User GetById(string id) 
+    {
+        return _users.FirstOrDefault(u => u.id == id);
+    }
 }

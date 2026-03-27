@@ -13,4 +13,9 @@ public class InMemoryEquipmentRepository : IEquipmentRepository
     {
         return  _equipments;
     }
+    
+    public Equipment GetById(string id) 
+    {
+        return _equipments.FirstOrDefault(e => e.id == id);
+    }
 }
