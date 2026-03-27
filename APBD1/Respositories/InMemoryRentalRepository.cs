@@ -8,6 +8,7 @@ public class InMemoryRentalRepository : IRentalRepository
     {
         _rentals.Add(rental);
     }
+
     public int GetCountByUser(string userId)
     {
         return _rentals.Count(r => r.idUser == userId && r.ReturnDate == default);
@@ -16,5 +17,10 @@ public class InMemoryRentalRepository : IRentalRepository
     public Rental? GetActiveRental(string userId, string equipmentId)
     {
         return _rentals.FirstOrDefault(r => r.idUser == userId && r.idEq == equipmentId && r.ReturnDate == default);
+    }
+
+    public List<Rental> GetAll()
+    {
+        return _rentals;
     }
 }

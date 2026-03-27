@@ -1,6 +1,6 @@
 namespace APBD1;
 
-public class IPenaltyCalculationStrategy
+public interface IPenaltyCalculationStrategy
 {
-    
+    decimal Calculate(int daysLate);
 }

@@ -8,12 +8,14 @@ public class RentalService : IRentalService
     private readonly IUserRepository _userRepository;
     private readonly IEquipmentRepository _equipmentRepository;
     private readonly IRentalRepository _rentalRepository;
+    private readonly IPenaltyCalculationStrategy _penaltyStrategy;
 
-    public RentalService(IUserRepository userRepo, IEquipmentRepository eqRepo, IRentalRepository rentRepo)
+    public RentalService(IUserRepository userRepo, IEquipmentRepository eqRepo, IRentalRepository rentRepo, IPenaltyCalculationStrategy penaltyStrategy)
     {
         _userRepository = userRepo;
         _equipmentRepository = eqRepo;
         _rentalRepository = rentRepo;
+        _penaltyStrategy = penaltyStrategy;
     }
 
     public void RentEquipment(string userId, string equipmentId)
@@ -52,20 +54,18 @@ public class RentalService : IRentalService
                           $"Termin zwrotu: {rental.DueDate:dd.MM.yyyy} (Aktywne: {aktualne + 1}/{limit})");
     }
 
-    public void ReturnEquipment(string userId, string equipmentId)
+    public Result ReturnEquipment(string userId, string equipmentId)
     {
         var user = _userRepository.GetById(userId);
         var equipment = _equipmentRepository.GetById(equipmentId);
 
         if (user == null || equipment == null) {
-            Console.WriteLine("[BŁĄD] Nie znaleziono użytkownika lub sprzętu.");
-            return;
+            return new Result { Success = false, Message = "Nie znaleziono użytkownika lub sprzętu." };
         }
 
         var rental = _rentalRepository.GetActiveRental(userId, equipmentId);
         if (rental == null) {
-            Console.WriteLine($"[BŁĄD] Brak aktywnego wypożyczenia sprzętu '{equipment.name}' dla użytkownika {user.name}.");
-            return;
+            return new Result { Success = false, Message = $"Brak aktywnego wypożyczenia sprzętu '{equipment.name}' dla użytkownika {user.name}." };
         }
 
         rental.ReturnDate = DateTime.Now;
@@ -73,10 +73,29 @@ public class RentalService : IRentalService
         equipment.Status = "Active";
 
         if (rental.OnTime)
-            Console.WriteLine($"[SUKCES] {user.name} zwrócił '{equipment.name}' W TERMINIE " +
-                              $"(zwrot: {rental.ReturnDate:dd.MM.yyyy}, termin: {rental.DueDate:dd.MM.yyyy}).");
+        {
+            return new Result { 
+                Success = true, 
+                Message = $"[SUKCES] {user.name} zwrócił '{equipment.name}' W TERMINIE.",
+                Penalty = 0,
+                DaysLate = 0
+            };
+        }
         else
-            Console.WriteLine($"[UWAGA]  {user.name} zwrócił '{equipment.name}' PO TERMINIE " +
-                              $"(zwrot: {rental.ReturnDate:dd.MM.yyyy}, termin: {rental.DueDate:dd.MM.yyyy}).");
+        {
+            int daysLate = (rental.ReturnDate - rental.DueDate).Days;
+            if (daysLate < 1) daysLate = 1; 
+
+            decimal penalty = _penaltyStrategy.Calculate(daysLate);
+
+            return new Result {
+                Success = true,
+                Message = $"[UWAGA] {user.name} zwrócił '{equipment.name}' PO TERMINIE " +
+                          $"(Opóźnienie: {daysLate} dni). Naliczono karę: {penalty} zł.",
+                Penalty = penalty,
+                DaysLate = daysLate
+            };
+        }
     }
 }
+
