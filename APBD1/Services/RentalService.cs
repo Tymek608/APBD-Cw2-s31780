@@ -26,7 +26,13 @@ public class RentalService : IRentalService
         }
 
         if (equipment.Status != "Active") {
-            Console.WriteLine($"[BŁĄD] Sprzęt {equipment.name} jest zajęty.");
+            Console.WriteLine($"[BŁĄD] Sprzęt '{equipment.name}' jest niedostępny (Status: {equipment.Status}).");
+            return;
+        }
+        int limit = user.userType == "Student" ? 2 : 5;
+        int aktualne = _rentalRepository.GetCountByUser(userId);
+        if (aktualne >= limit) {
+            Console.WriteLine($"[BŁĄD] {user.userType} {user.name} osiągnął limit {limit} wypożyczeń (aktualnie: {aktualne}).");
             return;
         }
 

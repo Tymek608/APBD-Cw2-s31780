@@ -8,4 +8,8 @@ public class InMemoryRentalRepository : IRentalRepository
     {
         _rentals.Add(rental);
     }
+    public int GetCountByUser(string userId)
+    {
+        return _rentals.Count(r => r.idUser == userId && r.ReturnDate == default);
+    }
 }
