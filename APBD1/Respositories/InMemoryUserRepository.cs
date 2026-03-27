@@ -8,4 +8,9 @@ public class InMemoryUserRepository : IUserRepository
     {
         _users.Add(user);
     }
+
+    public List<User> GetAll()
+    {
+        return  _users;
+    }
 }
