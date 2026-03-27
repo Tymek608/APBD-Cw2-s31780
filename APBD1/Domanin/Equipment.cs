@@ -6,6 +6,12 @@ public abstract class Equipment
     public string id { get; set;}
     public string name {get; set;}
     public string Status {get; set;}
+
+    public Equipment()
+    {
+        id = Guid.NewGuid().ToString();
+        Status = "Active";
+    }
 }
 
 public class Laptop : Equipment
